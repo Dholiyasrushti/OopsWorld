@@ -1,0 +1,38 @@
+1. Socket Connection
+	Frontend ko server se connect karne ke liye:
+	const socket = io(SERVER_URL);
+
+2. joinGame
+	Game join karne ke liye frontend ye event emit karega:
+	socket.emit('joinGame', { user_id: 'USER_ID', maxPlayers: 2 });
+	Response: gameStart event me complete room object milega.
+
+3. gameStart (Main Response Event)
+	Server har important action ke baad ye event emit karta hai. Isme complete updated game state
+	hoti hai (players, pawns, turn, cards, winner).
+
+4. playCard
+	Player apni turn me card play karta hai:
+	socket.emit('playCard', { roomId, cardId, pawnId, chosenMoveType: 'FORWARD' });
+	--------------Card Specific Examples --------
+	ELEVEN - Swap
+		socket.emit('playCard', { roomId, cardId, pawnId, chosenMoveType: 'SWAP',targetUserId, targetPawnId });
+
+	SORRY - Bump	
+		socket.emit('playCard', { roomId, cardId, pawnId, chosenMoveType: 'BUMP',targetUserId, targetPawnId });
+	SEVEN - Split
+		socket.emit('playCard', { roomId, cardId, chosenMoveType: 'SPLIT', splits: [{pawnId:1, steps:3 },{ pawnId:2,steps:4 }] });
+
+5. Chat (sendMessage)
+	socket.emit('sendMessage', { roomId, message: 'Hello' });
+	Response: receiveMessage event me updated chat milega.
+
+6. reshuffleDeck
+	socket.emit('reshuffleDeck', { roomId });
+	Response: gameStart event
+
+
+Important Notes
+1 Frontend ko sirf gameStart event listen karna hai for game updates.
+2 playCard ka direct response nahi hota.
+3 Winner detection gameStart event me status === 'FINISHED' se hota hai.
