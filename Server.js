@@ -20,7 +20,10 @@ app.use("/api/Users", require("./Routes/Users"));
 app.use("/api/GameLobby", require("./Routes/GameWallet"));
 app.use("/api/RandomUser", require("./Routes/RandomUser"));
 app.use("/api/Cards", require("./Routes/Card"));
-
+// ✅ Health check endpoint – yeh sab routes ke baad add karo
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');  // ya res.json({ status: 'healthy' }) bhi kar sakti ho
+});
 // HTTP server
 const server = http.createServer(app);
 
