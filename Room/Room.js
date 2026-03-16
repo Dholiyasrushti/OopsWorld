@@ -35,7 +35,7 @@
 const Room = require("../Models/Room");
 const { getLimits, COLORS_2P, COLORS_4P } = require("../Constants/constants");
 
-async function createRoom(players, deck, maxPlayers) {
+async function createRoom(players, deck, maxPlayers,gamelobby_id) {
   // 1. Correct colors aur limits (offsets) nikaalein
   const colors = maxPlayers === 2 ? COLORS_2P : COLORS_4P;
   const limits = getLimits(maxPlayers);
@@ -48,6 +48,7 @@ async function createRoom(players, deck, maxPlayers) {
       ...p,
       color: playerColor,
       homeCount: 0,
+    
       // 2. Pawns create karein with startIndex (NaN error fix karne ke liye)
       pawns: [1, 2, 3].map(id => ({
         pawnId: id,
@@ -69,7 +70,8 @@ async function createRoom(players, deck, maxPlayers) {
       players: playersWithData,
       cards: deck,
       status: "STARTED",
-      turnIndex: firstPlayerId
+      turnIndex: firstPlayerId,
+        gamelobby_id:gamelobby_id,
     });
     return room;
   } catch (err) {

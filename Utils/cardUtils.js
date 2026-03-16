@@ -93,11 +93,11 @@ function generateShuffledDeck(allCards) {
   // 1. Image ke sequence ke hisaab se card names ka map
   // Ye wahi order hai jo aapki pehli image mein dikh raha hai
   const sequence = [
-    "ELEVEN", "ELEVEN", "ELEVEN", "THREE", "FOUR", "FOUR", "ELEVEN", "TEN", "THREE", "SORRY",
-    "TEN", "FIVE", "SEVEN", "SEVEN", "TWELVE", "SORRY", "FOUR", "SEVEN", "THREE", "FOUR",
+    "ONE",  "TWO", "FOUR", "ONE", "FIVE", "ONE", "ONE",  "THREE","FOUR",
+    "ONE", "THREE","ONE", "SEVEN", "SEVEN", "TWELVE", "SORRY", "FOUR", "SEVEN", "THREE", "FOUR",
     "TEN", "SEVEN", "TWELVE", "EIGHT", "SORRY", "FIVE", "FIVE", "ONE", "THREE", "ONE",
     "EIGHT", "EIGHT", "ONE", "FIVE", "SORRY", "ONE", "TWELVE", "TWO", "TEN", "SORRY",
-    "EIGHT", "ONE", "TWO", "TWO", "TWO"
+    "EIGHT", "ONE", "FOUR", "THREE",
   ];
   //   const sequence = [
   //   "ELEVEN", "ELEVEN", "ELEVEN", "THREE", "FOUR", "SEVEN", "ELEVEN", "SEVEN", "THREE", "SEVEN",

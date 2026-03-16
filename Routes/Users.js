@@ -8,7 +8,9 @@ router.post("/UserSession", verifyToken,Users.updateSession);
 router.post("/CreditUpdate", verifyToken,Users.creditWallet);
 router.post("/DebitUpdate", verifyToken,Users.debitWallet);
 router.post("/Update", verifyToken,Users.updateProfile);
+router.post("/ActiveGame", verifyToken,Users.getUserActiveGame);
 router.post("/CosmeticUpdate", verifyToken,Users.cosmeticUpdate);
+router.post("/GetWorldRanking", verifyToken,Users.getLeaderboard);
 
 
 

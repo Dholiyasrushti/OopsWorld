@@ -1,5 +1,6 @@
 const User = require("../Models/Users");
 const { generateToken } = require("../Utils/generateToken")
+const  Room = require("../Models/Room")
 const saveImage = require("../Utils/saveImage")
 const getAvatarById = require("../Utils/getAvatarById")
 require("dotenv").config();
@@ -16,6 +17,7 @@ class UsersController {
         avatar       // avatar_id (1–7)
       } = req.body;
 
+      console.log("req.body",req.body)
       if (!isGuest && (!user_id || !username)) {
         return res.status(400).json({
           success: false,
@@ -104,6 +106,7 @@ class UsersController {
         responseUser.profile_pic =
           process.env.BASE_URL + avatarPath;
       }
+      console.log("responseUser",responseUser)
       return res.status(201).json({
         success: true,
         message: "User created successfully",
@@ -299,6 +302,71 @@ class UsersController {
     }
   }
 
+  async getUserActiveGame(req, res) {
+    try {
+      const { user_id} = req.body;
+
+      // Validation
+      if (!user_id) {
+        return res.status(400).json({
+          success: false,
+          message: "user_id required"
+        });
+      }
+
+      // let ActiveModel;
+
+      // 1. GameName ke basis par Model select karein
+      // Yahan aap apne saare games ke name aur unke corresponding Models add karein
+      // let room = null;
+
+     const room = await Room.findOne({
+            status: { $in: ["STARTED"] },
+            players: {
+              $elemMatch: {
+                user_id: user_id,
+                isFinish: false,
+                hasLeft:false // 💡 Sirf wahi room mile jahan user finish nahi hua hai
+              }
+            }
+          }).select("roomId gamelobby_id status players");
+      
+
+      // 3. Response handle karein
+
+      if (!room) {
+        return res.json({
+          success: true,
+          gameActive: false,
+          data: null
+        });
+      }
+      // const currentPlayer = room.players.find(p => p.user_id.toString() === user_id.toString());
+      // 3. Response bhejein
+      return res.json({
+        success: true,
+        gameActive: true,
+        data: {
+          roomId: room.roomId,
+          gamelobby_id: room.gamelobby_id,
+          maxPlayers: room.players ? room.players.length : 0, // maxPlayers schema mein na ho toh players count le sakte hain
+          status: room.status,
+          isGameActive: true,
+          // joinKey:room.joinKey ? room.joinKey : null,
+          // isPrivate :room.isPrivate ? room.isPrivate : null,
+          // color: currentPlayer ? currentPlayer.color : null
+        }
+      });
+
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch active game",
+        error: error.message
+      });
+    }
+  }
+
   async cosmeticUpdate(req, res) {
     try {
       const { user_id, cosmetic,cosmetic_value } = req.body;
@@ -342,6 +410,43 @@ class UsersController {
       return res.status(500).json({
         success: false,
         message: "Update failed",
+        error: error.message
+      });
+    }
+  }
+
+  async getLeaderboard(req, res) {
+    try {
+      // 1. Database se coins ke hisaab se descending order (-1) mein users fetch karein
+      const topUsers = await User.find({})
+        .sort({ coins: -1 }) // Sabse zyada coins upar
+        .limit(100)           // Top 20 users nikaalein (Aap 10 ya 50 bhi kar sakte hain)
+        .select("username coins avatar profile_pic cosmetic cosmetic_value"); // Sirf zaroori data
+
+      // 2. Profile Pic aur Avatar URL handle karein
+      const leaderboardData = topUsers.map(user => {
+        let u = user.toObject();
+        
+        if (u.profile_pic) {
+          u.profile_pic = process.env.BASE_URL + u.profile_pic;
+        } else if (u.avatar) {
+          const avatarPath = getAvatarById(u.avatar);
+          u.profile_pic = process.env.BASE_URL + avatarPath;
+        }
+        
+        return u;
+      });
+
+      return res.json({
+        success: true,
+        message: "Leaderboard fetched successfully",
+        data: leaderboardData
+      });
+
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch leaderboard",
         error: error.message
       });
     }

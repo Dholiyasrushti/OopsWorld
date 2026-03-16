@@ -9,6 +9,7 @@ const ChatSchema = new mongoose.Schema({
         default: false
     },
     message: String,
+    emoji: Number,
     createdAt: {
         type: Date,
         default: Date.now
@@ -38,17 +39,23 @@ const PlayerSchema = new mongoose.Schema({
     color: String,
     pawns: [PawnSchema],
     cosmetic: String,
-    cosmetic_value:Number,
+    cosmetic_value: Number,
     hasLeft: { type: Boolean, default: false },
     homeCount: { type: Number, default: 0 },
-    
+    missedTurns: { type: Number, default: 3 },
+    rank: { type: Number, default: 0 },
+    isFinish:{ type: Boolean, default: false },
+    rewardCoins: { type: Number, default: 0 },
+    rewardDiamonds: { type: Number, default: 0 }
+
 });
 const RoomSchema = new mongoose.Schema(
     {
         roomId: {
             type: String,
             required: true,
-            unique: true
+            unique: true,
+            index: true // ⚡ Indexing add ki gayi hai fast search ke liye
         },
         maxPlayers: {
             type: Number,
@@ -60,19 +67,22 @@ const RoomSchema = new mongoose.Schema(
             type: Array,
             required: true
         },
-        gamelobby_id: { type: String },
-        turnIndex: { type: String, default: 0 },
+        isCardOpen:{ type: Boolean, default: false },
+        gamelobby_id: { type: String, index: true }, // Agar lobby se search karte ho toh index kaam ayega        
+        turnIndex: { type: String, default: "" },
         winner: { type: String, default: null },
         chat: [ChatSchema],   // 🔥 ROOM CHAT
         sevenSplitUsed: { type: Number, default: 0 },
         status: {
             type: String,
             enum: ["WAITING", "STARTED", "FINISHED"],
-            default: "STARTED"
-        }
+            default: "WAITING",
+            index: true
+        },
+        rankCounter: { type: Number, default: 0 },
+        turnEndTime: { type: Date }
     },
 
-    { timestamps: true, expires: 86400 }
-);
-
+    { timestamps: true });
+RoomSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 });
 module.exports = mongoose.model("Room", RoomSchema);
