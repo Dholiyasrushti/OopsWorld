@@ -1533,7 +1533,7 @@ module.exports = (server) => {
         if (!user || !lobby) return socket.emit("error", { message: "Data not found" });
         // console.log("user_id",user_id)
         // console.log("user_id, maxPlayers, gamelobby_id", user_id, maxPlayers, gamelobby_id)
-        const existingRoom = await Room.findOne({
+        const existingRoom = await Room?.findOne({
           "players": {
             $elemMatch: {
               "user_id": user_id,
@@ -1548,17 +1548,17 @@ module.exports = (server) => {
 
         // --- REJOIN SECTION INSIDE joinGame ---
         if (existingRoom) {
-          socket.join(existingRoom.roomId);
+          socket.join(existingRoom?.roomId);
 
           // 1. Database mein socketId update karein
           await Room.updateOne(
-            { roomId: existingRoom.roomId, "players.user_id": user_id },
+            { roomId: existingRoom?.roomId, "players.user_id": user_id },
             { $set: { "players.$.socketId": socket.id } }
           );
 
           // 2. Bacha hua time calculate karein
           const currentTime = Date.now();
-          const endTime = new Date(existingRoom.turnEndTime).getTime();
+          const endTime = new Date(existingRoom?.turnEndTime).getTime();
           let remainingMs = endTime - currentTime;
           let remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
           console.log("remainingSec", remainingSec)
@@ -1570,7 +1570,7 @@ module.exports = (server) => {
             isRejoin: true,
             remainingTimer: remainingSec, // Frontend isi seconds se countdown shuru karega
             userTurn: existingRoom?.turnIndex,
-            card: existingRoom.isCardOpen ? existingRoom.cards[0] : null
+            card: existingRoom?.isCardOpen ? existingRoom?.cards[0] : null
           });
 
           // 4. Important: Agar Server restart hua tha aur timer memory mein nahi hai
@@ -1630,8 +1630,8 @@ module.exports = (server) => {
 
         // Helper: Sab real players ke paise katne ke liye
         const processDeduction = async (playersList) => {
-          const realPlayers = playersList.filter(p => !p.bot);
-          const userIds = realPlayers.map(p => p.user_id);
+          const realPlayers = playersList?.filter(p => !p.bot);
+          const userIds = realPlayers?.map(p => p.user_id);
 
           // Bulk update for all real players in the room
           await User.updateMany(
@@ -1642,13 +1642,13 @@ module.exports = (server) => {
 
 
 
-        if (roomData.players.length === maxPlayers) {
+        if (roomData?.players.length === maxPlayers) {
 
           clearTimeout(roomData.timer);[]
           console.log(`[${getISTTime()}] waiting `);
           socket.emit("waiting", { joined: roomData.players.length, needed: maxPlayers });
 
-          const room = await createRoom(roomData.players, generateShuffledDeck(await Card.find({})), maxPlayers, gamelobby_id);
+          const room = await createRoom(roomData?.players, generateShuffledDeck(await Card.find({})), maxPlayers, gamelobby_id);
 
           // Join Socket Room
           room.players.forEach(p => io.sockets.sockets.get(p.socketId)?.join(room.roomId));
